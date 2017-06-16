@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block content %}
+  {{post.render() | safe}}
+
+    <form method="post">
+      <label>
+        <div>Edit Comment</div>
+        <textarea name="content">{{content}}</textarea>
+      </label>
+
+      <div class="error">{{error}}</div>
+
+      <input type="submit" value="save">
+    </form>
+{% endblock %}

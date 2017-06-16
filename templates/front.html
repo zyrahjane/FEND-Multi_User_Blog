@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+  {% for p in posts %}
+    {{ p.render() | safe }}
+    <br><br>
+
+    {% for c in comments %}
+        {% if p.key().id() == c.post_id %}
+            {{ c.render(p.key().id()) | safe }}
+            <br><br>
+        {% endif %}
+    {% endfor %}
+  {% endfor %}
+
+{% endblock %}

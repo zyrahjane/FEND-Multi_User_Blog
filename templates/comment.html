@@ -1,0 +1,14 @@
+<div class="comment">
+  <div class="comment-heading">
+    comment by {{c.author}} at {{c.created.strftime("%b %d, %Y")}}
+      <BR>
+  </div>
+
+  <div class="comment-content">
+    {{c._render_text | safe}}
+  </div>
+  <div class="comment-foot">
+      <a class="login-link" href="/{{post_id}}/{{c.key().id()}}/editcomment">(EDIT)</a>
+      <a class="login-link" href="/{{post_id}}/{{c.key().id()}}/deletecomment">(DELETE)</a>
+  </div>
+</div>

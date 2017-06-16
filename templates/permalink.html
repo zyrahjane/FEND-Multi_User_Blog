@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block content %}
+  {{post.render() | safe}}
+  <div class="error">{{error}}</div>
+
+    {% for c in comments %}
+        {% if post.key().id() == c.post_id %}
+            {{ c.render(post.key().id()) | safe }}
+            <br><br>
+        {% endif %}
+    {% endfor %}
+{% endblock %}
+
+
