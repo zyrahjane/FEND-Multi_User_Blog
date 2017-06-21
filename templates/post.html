@@ -8,8 +8,11 @@
     by {{p.author}} <br>
       {{p.created.strftime("%b %d, %Y")}}
       <BR>
-      <a class="login-link" href="/{{p.key().id()}}/editpost">(EDIT)</a>
-      <a class="login-link" href="/{{p.key().id()}}/deletepost">(DELETE)</a>
+      <a class="login-link" href="/{{p.key().id()}}/editpost">
+      <input type="button" value="edit"></a>
+      <a class="login-link" href="/{{p.key().id()}}/deletepost">
+        <input type="button" value="delete">
+      </a>
     </div>
   </div>
 
@@ -18,10 +21,11 @@
   </div>
 
   <div class="post-foot">
-  <a class="login-link" href="/{{p.key().id()}}/togglelike">Like/Unlike</a> |
-  <a class="login-link" href="/{{p.key().id()}}/addcomment">comment</a>
-<br>
-    liked x {{p.likes}}
-
+  likes for post = {{p.likes}}
+  <br>
+  <a class="login-link" href="/{{p.key().id()}}/togglelike">
+  <input type="button" value="like/unlike post"></a>
+  <a class="login-link" href="/{{p.key().id()}}/addcomment">
+  <input type="button" value="add comment"></a>
   </div>
 </div>

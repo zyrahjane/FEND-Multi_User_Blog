@@ -7,6 +7,7 @@ from string import letters
 
 import webapp2
 import jinja2
+import blogfunc
 
 from google.appengine.ext import db
 
@@ -66,33 +67,6 @@ class BlogHandler(webapp2.RequestHandler):
         self.user = uid and User.by_id(int(uid))
 
 
-def render_post(response, post):
-    response.out.write('<b>' + post.subject + '</b><br>')
-    response.out.write(post.content)
-
-
-class MainPage(BlogHandler):
-    def get(self):
-        self.write('Hello, Udacity!')
-
-
-# user stuff
-def make_salt(length=5):
-    return ''.join(random.choice(letters) for x in xrange(length))
-
-
-def make_pw_hash(name, pw, salt=None):
-    if not salt:
-        salt = make_salt()
-    h = hashlib.sha256(name + pw + salt).hexdigest()
-    return '%s,%s' % (salt, h)
-
-
-def valid_pw(name, password, h):
-    salt = h.split(',')[0]
-    return h == make_pw_hash(name, password, salt)
-
-
 def users_key(group='default'):
     return db.Key.from_path('users', group)
 
@@ -113,7 +87,7 @@ class User(db.Model):
 
     @classmethod
     def register(cls, name, pw, email=None):
-        pw_hash = make_pw_hash(name, pw)
+        pw_hash = blogfunc.make_pw_hash(name, pw)
         return User(parent=users_key(),
                     name=name,
                     pw_hash=pw_hash,
@@ -122,7 +96,7 @@ class User(db.Model):
     @classmethod
     def login(cls, name, pw):
         u = cls.by_name(name)
-        if u and valid_pw(name, pw, u.pw_hash):
+        if u and blogfunc.valid_pw(name, pw, u.pw_hash):
             return u
 
 
@@ -220,6 +194,10 @@ class EditPost(BlogHandler):
         key = db.Key.from_path('Post', int(post_id), parent=blog_key())
         post = db.get(key)
 
+        # checks if post exists
+        if not post:
+            return self.redirect('/')
+
         if self.user and self.user.name == post.author:
             return self.render('editpost.html', subject=post.subject,
                                content=post.content)
@@ -234,9 +212,6 @@ class EditPost(BlogHandler):
                         error=error)
 
     def post(self, post_id):
-        if not self.user:
-            return self.redirect('/login')
-
         key = db.Key.from_path('Post', int(post_id), parent=blog_key())
         post = db.get(key)
 
@@ -258,6 +233,7 @@ class DeletePost(BlogHandler):
     def get(self, post_id):
         key = db.Key.from_path('Post', int(post_id), parent=blog_key())
         post = db.get(key)
+
         if post is not None and self.user and self.user.name == post.author:
             post.delete()
             self.redirect('/deletepostmessage')
@@ -281,6 +257,10 @@ class AddComment(BlogHandler):
     def get(self, post_id):
         key = db.Key.from_path('Post', int(post_id), parent=blog_key())
         post = db.get(key)
+
+        if not post:
+            return self.redirect('/')
+
         if self.user:
             self.render("addcomment.html", post=post)
         else:
@@ -345,10 +325,10 @@ class EditComment(BlogHandler):
         comment = db.get(key)
         post = db.get(postKey)
 
-        if (
-            comment is not None and
-            self.user and self.user.name == comment.author
-        ):
+        if not post or not comment:
+            return self.redirect('/')
+
+        if (self.user and self.user.name == comment.author):
             self.render("editcomment.html", post=post, content=comment.content)
         elif not self.user:
             self.redirect("/login")
@@ -414,24 +394,6 @@ class DeleteCommentMsg(BlogHandler):
     def get(self):
         self.render("deletepost.html")
 
-USER_RE = re.compile(r"^[a-zA-Z0-9_-]{3,20}$")
-
-
-def valid_username(username):
-    return username and USER_RE.match(username)
-
-PASS_RE = re.compile(r"^.{3,20}$")
-
-
-def valid_password(password):
-    return password and PASS_RE.match(password)
-
-EMAIL_RE = re.compile(r'^[\S]+@[\S]+\.[\S]+$')
-
-
-def valid_email(email):
-    return not email or EMAIL_RE.match(email)
-
 
 class Signup(BlogHandler):
     def get(self):
@@ -447,18 +409,18 @@ class Signup(BlogHandler):
         params = dict(username=self.username,
                       email=self.email)
 
-        if not valid_username(self.username):
+        if not blogfunc.valid_username(self.username):
             params['error_username'] = "That's not a valid username."
             have_error = True
 
-        if not valid_password(self.password):
+        if not blogfunc.valid_password(self.password):
             params['error_password'] = "That wasn't a valid password."
             have_error = True
         elif self.password != self.verify:
             params['error_verify'] = "Your passwords didn't match."
             have_error = True
 
-        if not valid_email(self.email):
+        if not blogfunc.valid_email(self.email):
             params['error_email'] = "That's not a valid email."
             have_error = True
 

@@ -8,7 +8,9 @@
     {{c._render_text | safe}}
   </div>
   <div class="comment-foot">
-      <a class="login-link" href="/{{post_id}}/{{c.key().id()}}/editcomment">(EDIT)</a>
-      <a class="login-link" href="/{{post_id}}/{{c.key().id()}}/deletecomment">(DELETE)</a>
+      <a class="login-link" href="/{{post_id}}/{{c.key().id()}}/editcomment">
+      <input type="button" value="edit comment"></a>
+      <a class="login-link" href="/{{post_id}}/{{c.key().id()}}/deletecomment">
+      <input type="button" value="delete comment"></a>
   </div>
 </div>
